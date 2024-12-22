@@ -1,0 +1,6 @@
+.idea
+server/.idea
+server/CMakeLists.txt
+server/cmake-build-debug
+client/.idea
+client/.venv

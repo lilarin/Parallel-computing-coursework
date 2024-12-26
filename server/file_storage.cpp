@@ -1,6 +1,7 @@
 #include "file_storage.h"
 #include <iostream>
 #include <fstream>
+#include <shared_mutex>
 
 FileStorage::FileStorage(const std::string& path) : storage_path(path) {
     std::experimental::filesystem::create_directory(storage_path);
@@ -8,7 +9,7 @@ FileStorage::FileStorage(const std::string& path) : storage_path(path) {
 }
 
 bool FileStorage::saveFile(const std::string& filename, const std::string& content) {
-    std::lock_guard<std::mutex> lock(file_mutex);
+    std::unique_lock<std::shared_mutex> lock(file_rw_mutex);
     std::cout << "INFO: Saving file '" << filename << "' to storage." << std::endl;
     std::ofstream file(storage_path + filename);
     if (file.is_open()) {
@@ -22,7 +23,7 @@ bool FileStorage::saveFile(const std::string& filename, const std::string& conte
 }
 
 std::string FileStorage::getFileContent(const std::string& filename) {
-    std::lock_guard<std::mutex> lock(file_mutex);
+    std::shared_lock<std::shared_mutex> lock(file_rw_mutex);
     std::cout << "INFO: Getting content of file '" << filename << "' from storage." << std::endl;
     std::ifstream file(storage_path + filename);
     if (file.is_open()) {
@@ -37,7 +38,7 @@ std::string FileStorage::getFileContent(const std::string& filename) {
 }
 
 std::vector<std::string> FileStorage::getAllFiles() {
-    std::lock_guard<std::mutex> lock(file_mutex);
+    std::shared_lock<std::shared_mutex> lock(file_rw_mutex);
     std::cout << "INFO: Getting list of all files in storage." << std::endl;
     std::vector<std::string> files;
     for (const auto& entry : std::experimental::filesystem::directory_iterator(storage_path)) {
@@ -50,7 +51,7 @@ std::vector<std::string> FileStorage::getAllFiles() {
 }
 
 bool FileStorage::deleteFile(const std::string& filename) {
-    std::lock_guard<std::mutex> lock(file_mutex);
+    std::unique_lock<std::shared_mutex> lock(file_rw_mutex);
     std::cout << "INFO: Deleting file '" << filename << "' from storage." << std::endl;
     std::error_code ec;
     if (std::experimental::filesystem::remove(storage_path + filename, ec)) {

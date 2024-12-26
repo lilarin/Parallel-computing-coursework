@@ -156,8 +156,6 @@ void WebServer::handleClient(int client_socket) {
         exit(EXIT_FAILURE);
     }
 
-    std::cout << "Web server listening on port " << port << std::endl;
-
     while (true) {
         if ((new_socket = accept(server_fd, (struct sockaddr*)&address, &addrlen)) < 0) {
             perror("accept");

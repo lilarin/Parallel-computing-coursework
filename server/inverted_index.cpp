@@ -2,9 +2,10 @@
 #include <iostream>
 #include <sstream>
 #include <algorithm>
+#include <shared_mutex> // Include for shared_mutex
 
 void InvertedIndex::addDocument(const Document& document) {
-    std::lock_guard<std::mutex> lock(index_mutex);
+    std::unique_lock<std::shared_mutex> lock(index_mutex);
     std::cout << "DEBUG: Adding document '" << document.filename << "' to index." << std::endl;
     std::stringstream ss(document.content);
     std::string word;
@@ -15,7 +16,7 @@ void InvertedIndex::addDocument(const Document& document) {
 }
 
 void InvertedIndex::removeDocument(const std::string& filename) {
-    std::lock_guard<std::mutex> lock(index_mutex);
+    std::unique_lock<std::shared_mutex> lock(index_mutex);
     std::cout << "DEBUG: Removing document '" << filename << "' from index." << std::endl;
     for (auto& pair : index) {
         pair.second.erase(filename);
@@ -31,7 +32,7 @@ void InvertedIndex::removeDocument(const std::string& filename) {
 }
 
 std::set<std::string> InvertedIndex::search(const std::string& query) {
-    std::lock_guard<std::mutex> lock(index_mutex);
+    std::shared_lock<std::shared_mutex> lock(index_mutex);
     std::cout << "INFO: Searching index for query: '" << query << "'" << std::endl;
     std::stringstream ss(query);
     std::string word;
@@ -62,14 +63,14 @@ std::set<std::string> InvertedIndex::search(const std::string& query) {
 }
 
 void InvertedIndex::clear() {
-    std::lock_guard<std::mutex> lock(index_mutex);
+    std::unique_lock<std::shared_mutex> lock(index_mutex);
     std::cout << "INFO: Clearing the inverted index." << std::endl;
     index.clear();
     std::cout << "INFO: Inverted index cleared." << std::endl;
 }
 
 void InvertedIndex::printIndexes() {
-    std::lock_guard<std::mutex> lock(index_mutex);
+    std::shared_lock<std::shared_mutex> lock(index_mutex);
     if (!index.empty()) {
         std::cout << "--- Inverted Index ---" << std::endl;
         for (const auto& pair : index) {

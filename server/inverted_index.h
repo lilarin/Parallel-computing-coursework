@@ -4,13 +4,13 @@
 #include <unordered_map>
 #include <set>
 #include <string>
-#include <mutex>
+#include <shared_mutex>
 #include "utils.h"
 
 class InvertedIndex {
 private:
     std::unordered_map<std::string, std::set<std::string>> index;
-    std::mutex index_mutex;
+    std::shared_mutex index_mutex;
 
 public:
     void addDocument(const Document& document);

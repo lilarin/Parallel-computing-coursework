@@ -35,11 +35,10 @@ async def client_task(
         action = random.choice(
             [RequestType.UPLOAD_FILES, RequestType.SEARCH, RequestType.DELETE_FILE]
         )
-        start_time = asyncio.get_running_loop().time()
-
         if action == RequestType.UPLOAD_FILES:
             filename = await generate_filename()
             content = await choice_words(words)
+            start_time = asyncio.get_running_loop().time()
             status, response = await client.upload_file(filename, content)
             end_time = asyncio.get_running_loop().time()
             duration = end_time - start_time
@@ -56,6 +55,7 @@ async def client_task(
         elif action == RequestType.SEARCH:
             content = await choice_words(words)
             search_term = random.choice(content.split())
+            start_time = asyncio.get_running_loop().time()
             status, response = await client.search_index(search_term)
             end_time = asyncio.get_running_loop().time()
             duration = end_time - start_time
@@ -73,6 +73,7 @@ async def client_task(
                     if created_files
                     else "non-existing.txt"
                 )
+            start_time = asyncio.get_running_loop().time()
             status, response = await client.delete_file(file_to_delete)
             end_time = asyncio.get_running_loop().time()
             duration = end_time - start_time
@@ -88,9 +89,8 @@ async def client_task(
 
     await asyncio.gather(*[single_request() for _ in range(num_requests)])
 
-async def clean(client, created_files, files_lock):
-    async with files_lock:
-        clear_tasks = [client.delete_file(filename) for filename in created_files]
+async def clean(client, created_files):
+    clear_tasks = [client.delete_file(filename) for filename in created_files]
     await asyncio.gather(*clear_tasks)
 
 async def run_test(num_clients: int, num_requests: int, wait_time_range):
@@ -122,7 +122,7 @@ async def run_test(num_clients: int, num_requests: int, wait_time_range):
     ]
     await asyncio.gather(*client_tasks)
 
-    await clean(client, created_files, files_lock)
+    await clean(client, created_files)
 
     avg_times = {}
     for action, stats in request_stats.items():
@@ -208,15 +208,21 @@ async def test_scenarios():
             "name": "Large number of users"
         },
         {
+            "user_counts": [35, 40, 45, 50],
+            "requests_per_user": 30,
+            "wait_time_range": (0, 1),
+            "name": "Large number of users"
+        },
+        {
             "user_counts": [10, 15, 20, 25],
             "requests_per_user": 50,
             "wait_time_range": (0, 1),
             "name": "Large number of users and requests"
         },
         {
-            "user_counts": [50, 75],
-            "requests_per_user": 10,
-            "wait_time_range": (0, 0),
+            "user_counts": [50, 60, 70, 80],
+            "requests_per_user": 20,
+            "wait_time_range": (0, 1),
             "name": "Large number of users and requests"
         }
     ]

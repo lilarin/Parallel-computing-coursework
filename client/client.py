@@ -14,7 +14,9 @@ class Client:
 
     async def _send_request(self, request_type, data=""):
         try:
-            reader, writer = await asyncio.open_connection(self.host, self.port)
+            reader, writer = await asyncio.open_connection(
+                self.host, self.port, ssl=False
+            )
             encoded_data = data.encode("utf-8")
             request = struct.pack("B", request_type) + encoded_data
             writer.write(request)
@@ -22,19 +24,19 @@ class Client:
 
             response_data = await reader.read(1024)
             if not response_data:
-                logging.error("No response received from server.")
+                # logging.error("No response received from server.")
                 writer.close()
                 await writer.wait_closed()
-                return
+                return None, None
 
-            response_parts = response_data.decode(
-                "utf-8", errors="ignore"
-            ).split('\n', 1)
+            response_parts = response_data.decode("utf-8", errors="ignore").split(
+                "\n", 1
+            )
             if len(response_parts) != 2:
                 logging.error(f"Invalid response format: {response_parts}")
                 writer.close()
                 await writer.wait_closed()
-                return
+                return None, None
 
             status_code, response_text = response_parts
             writer.close()
@@ -42,11 +44,11 @@ class Client:
             return int(status_code), response_text
 
         except ConnectionRefusedError:
-            logging.error(f"Connection refused by server at {self.host}:{self.port}")
-            return
+            # logging.error(f"Connection refused by server at {self.host}:{self.port}")
+            return None, None
         except Exception as error:
-            logging.error(f"An error occurred during communication: {error}")
-            return
+            # logging.error(f"An error occurred during communication: {error}")
+            return None, None
 
     async def upload_file(self, filename, content):
         data = f"{filename}\n{content}"

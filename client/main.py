@@ -24,7 +24,9 @@ async def main():
 
     # Test searching non-existent query
     status, data = await client.search_index("12333333qsadadasdad")
-    print(f"Search with non-existing query. Status: {status} ({HTTPStatus(status).phrase}), data: {data}")
+    print(
+        f"Search with non-existing query. Status: {status} ({HTTPStatus(status).phrase}), data: {data}"
+    )
 
     # Deleting first file
     status, data = await client.delete_file("test1.txt")
@@ -32,7 +34,9 @@ async def main():
 
     # Test searching after deleting single file
     status, data = await client.search_index("content")
-    print(f"Search non-existent file. Status: {status} ({HTTPStatus(status).phrase}), data: {data}")
+    print(
+        f"Search non-existent file. Status: {status} ({HTTPStatus(status).phrase}), data: {data}"
+    )
 
     # Deleting second file
     status, data = await client.delete_file("test2.txt")
@@ -40,11 +44,16 @@ async def main():
 
     # Test searching after deleting the both files
     status, data = await client.search_index("content")
-    print(f"Search non-existent file. Status: {status} ({HTTPStatus(status).phrase}), data: {data}")
+    print(
+        f"Search non-existent file. Status: {status} ({HTTPStatus(status).phrase}), data: {data}"
+    )
 
     # Test deleting a non-existent file
     status, data = await client.delete_file("nonexistent.txt")
-    print(f"Delete non-existent file. Status: {status} ({HTTPStatus(status).phrase}), data: {data}")
+    print(
+        f"Delete non-existent file. Status: {status} ({HTTPStatus(status).phrase}), data: {data}"
+    )
+
 
 if __name__ == "__main__":
     asyncio.run(main())

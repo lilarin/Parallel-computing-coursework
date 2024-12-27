@@ -24,18 +24,18 @@ async def client_task(
     client,
     words,
     num_requests,
+    wait_time_range,
     created_files,
     request_stats,
     request_stats_lock,
     files_lock,
 ):
     async def single_request():
+        await asyncio.sleep(random.uniform(*wait_time_range))
         action = random.choice(
             [RequestType.UPLOAD_FILES, RequestType.SEARCH, RequestType.DELETE_FILE]
         )
         start_time = asyncio.get_running_loop().time()
-        status = None  # Initialize status
-        response = None # Initialize response
 
         if action == RequestType.UPLOAD_FILES:
             filename = await generate_filename()
@@ -85,7 +85,6 @@ async def client_task(
                             created_files.remove(file_to_delete)
                 else:
                     request_stats["failed"]["count"] += 1
-        await asyncio.sleep(random.uniform(0, 2))
 
     await asyncio.gather(*[single_request() for _ in range(num_requests)])
 
@@ -94,7 +93,7 @@ async def clean(client, created_files, files_lock):
         clear_tasks = [client.delete_file(filename) for filename in created_files]
     await asyncio.gather(*clear_tasks)
 
-async def run_test(num_clients: int, num_requests: int):
+async def run_test(num_clients: int, num_requests: int, wait_time_range):
     client = Client("localhost", 8080)
     words = await generate_words()
 
@@ -113,6 +112,7 @@ async def run_test(num_clients: int, num_requests: int):
             client,
             words,
             num_requests,
+            wait_time_range,
             created_files,
             request_stats,
             request_stats_lock,
@@ -133,19 +133,7 @@ async def run_test(num_clients: int, num_requests: int):
     failed_count = request_stats["failed"]["count"]
     return avg_times, failed_count
 
-async def main():
-    user_counts = [5, 10, 15, 25, 35]
-
-    requests_per_user = 25
-    all_avg_times = {}
-    all_failed_counts = {}
-
-    for num_users in user_counts:
-        print(f"Running test for {num_users} users...")
-        avg_times, failed_count = await run_test(num_users, requests_per_user)
-        all_avg_times[num_users] = avg_times
-        all_failed_counts[num_users] = failed_count
-
+async def plot_results(all_avg_times, all_failed_counts, requests_per_user, wait_time_range):
     # Prepare data for plotting
     users = list(all_avg_times.keys())
     upload_times = [all_avg_times[u].get("upload", 0) for u in users]
@@ -154,30 +142,92 @@ async def main():
     failed_requests = list(all_failed_counts.values())
 
     # Create the figure and subplots
-    fig, axs = plt.subplots(2, 1, figsize=(10, 10))
+    fig, axs = plt.subplots(2, 1, figsize=(10, 12))
+
+    # Add general information text
+    info_text = (
+        f"Test parameters:\n"
+        f"Wait time before each request: from {wait_time_range[0]} to {wait_time_range[1]} seconds\n"
+        f"The number of requests from each user: {requests_per_user}"
+    )
+    fig.text(0.5, 0.96, info_text, ha='center', va='top', fontsize=10, bbox=dict(facecolor='lightgray', alpha=0.5))
 
     # Plot average request times on the first subplot
     axs[0].plot(users, upload_times, marker="o", label="Upload")
     axs[0].plot(users, search_times, marker="o", label="Search")
     axs[0].plot(users, delete_times, marker="o", label="Delete")
-    axs[0].set_xlabel("Number of Users")
-    axs[0].set_ylabel("Average Request Time (seconds)")
-    axs[0].set_title("Average Request Time vs. Number of Users")
+    axs[0].set_xlabel("Number of users")
+    axs[0].set_ylabel("Average request time (seconds)")
+    axs[0].set_title("Average request time depending on the number of users")
     axs[0].set_xticks(users)
     axs[0].legend()
     axs[0].grid(True)
 
     # Plot failed requests on the second subplot
-    axs[1].plot(users, failed_requests, marker="x", linestyle='--', color='red', label="Failed Requests")
-    axs[1].set_xlabel("Number of Users")
-    axs[1].set_ylabel("Number of Failed Requests")
-    axs[1].set_title("Number of Failed Requests vs. Number of Users")
+    axs[1].plot(users, failed_requests, marker="x", linestyle='--', color='red', label="Lost connections")
+    axs[1].set_xlabel("Number of users")
+    axs[1].set_ylabel("Number of disconnected connections")
+    axs[1].set_title("Number of disconnected connections depending on the number of users")
     axs[1].set_xticks(users)
     axs[1].legend()
     axs[1].grid(True)
 
-    plt.tight_layout()
     plt.show()
 
+async def main(user_counts, requests_per_user, wait_time_range):
+    all_avg_times = {}
+    all_failed_counts = {}
+
+    for num_users in user_counts:
+        print(f"Running test for {num_users} users...")
+        avg_times, failed_count = await run_test(num_users, requests_per_user, wait_time_range)
+        all_avg_times[num_users] = avg_times
+        all_failed_counts[num_users] = failed_count
+
+    # Start plotting without waiting
+    asyncio.create_task(plot_results(all_avg_times, all_failed_counts, requests_per_user, wait_time_range))
+
+async def test_scenarios():
+    test_cases = [
+        {
+            "user_counts": [5, 10, 15, 20],
+            "requests_per_user": 25,
+            "wait_time_range": (0, 1),
+            "name": "Small number of users"
+        },
+        {
+            "user_counts": [15, 20, 25, 30],
+            "requests_per_user": 25,
+            "wait_time_range": (0, 1),
+            "name": "Average number of users"
+        },
+        {
+            "user_counts": [35, 40, 45, 50],
+            "requests_per_user": 25,
+            "wait_time_range": (0, 1),
+            "name": "Large number of users"
+        },
+        {
+            "user_counts": [10, 15, 20, 25],
+            "requests_per_user": 50,
+            "wait_time_range": (0, 1),
+            "name": "Large number of users and requests"
+        },
+        {
+            "user_counts": [50, 75],
+            "requests_per_user": 10,
+            "wait_time_range": (0, 0),
+            "name": "Large number of users and requests"
+        }
+    ]
+
+    for i, test_case in enumerate(test_cases):
+        print(f"\nRunning Test Case {i+1}: {test_case['name']}")
+        await main(
+            test_case["user_counts"],
+            test_case["requests_per_user"],
+            test_case["wait_time_range"]
+        )
+
 if __name__ == "__main__":
-    asyncio.run(main())
+    asyncio.run(test_scenarios())

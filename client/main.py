@@ -5,53 +5,57 @@ from client import client
 
 
 async def main():
-    # Test files upload
-    filename = "test1.txt"
-    content = "This is the content of test file 1."
-    status, data = await client.upload_file(filename, content)
-    print(f"Upload file. Status: {status} ({HTTPStatus(status).phrase}), data: {data}")
+    try:
+        # Test files upload
+        filename = "test1.txt"
+        content = "This is the content of test file 1."
+        status, data = await client.upload_file(filename, content)
+        print(f"Upload file. Status: {status} ({HTTPStatus(status).phrase}), data: {data}")
 
-    filename = "test2.txt"
-    content = "This is the content of test file 2."
-    status, data = await client.upload_file(filename, content)
-    print(f"Upload file. Status: {status} ({HTTPStatus(status).phrase}), data: {data}")
+        filename = "test2.txt"
+        content = "This is the content of test file 2."
+        status, data = await client.upload_file(filename, content)
+        print(f"Upload file. Status: {status} ({HTTPStatus(status).phrase}), data: {data}")
 
-    # Test searching
-    status, data = await client.search_files("content")
-    print(f"Search. Status: {status} ({HTTPStatus(status).phrase}), data: {data}")
+        # Test searching
+        status, data = await client.search_files("content")
+        print(f"Search. Status: {status} ({HTTPStatus(status).phrase}), data: {data}")
 
-    # Test searching non-existent query
-    status, data = await client.search_files("12333333qsadadasdad")
-    print(
-        f"Search with non-existing query. Status: {status} ({HTTPStatus(status).phrase}), data: {data}"
-    )
+        # Test searching non-existent query
+        status, data = await client.search_files("12333333qsadadasdad")
+        print(
+            f"Search with non-existing query. Status: {status} ({HTTPStatus(status).phrase}), data: {data}"
+        )
 
-    # Deleting first file
-    status, data = await client.delete_file("test1.txt")
-    print(f"Delete file. Status: {status} ({HTTPStatus(status).phrase}), data: {data}")
+        # Deleting first file
+        status, data = await client.delete_file("test1.txt")
+        print(f"Delete file. Status: {status} ({HTTPStatus(status).phrase}), data: {data}")
 
-    # Test searching after deleting single file
-    status, data = await client.search_files("content")
-    print(
-        f"Search non-existent file. Status: {status} ({HTTPStatus(status).phrase}), data: {data}"
-    )
+        # Test searching after deleting single file
+        status, data = await client.search_files("content")
+        print(
+            f"Search non-existent file. Status: {status} ({HTTPStatus(status).phrase}), data: {data}"
+        )
 
-    # Deleting second file
-    status, data = await client.delete_file("test2.txt")
-    print(f"Delete file. Status: {status} ({HTTPStatus(status).phrase}), data: {data}")
+        # Deleting second file
+        status, data = await client.delete_file("test2.txt")
+        print(f"Delete file. Status: {status} ({HTTPStatus(status).phrase}), data: {data}")
 
-    # Test searching after deleting the both files
-    status, data = await client.search_files("content")
-    print(
-        f"Search non-existent file. Status: {status} ({HTTPStatus(status).phrase}), data: {data}"
-    )
+        # Test searching after deleting the both files
+        status, data = await client.search_files("content")
+        print(
+            f"Search non-existent file. Status: {status} ({HTTPStatus(status).phrase}), data: {data}"
+        )
 
-    # Test deleting a non-existent file
-    status, data = await client.delete_file("nonexistent.txt")
-    print(
-        f"Delete non-existent file. Status: {status} ({HTTPStatus(status).phrase}), data: {data}"
-    )
-
+        # Test deleting a non-existent file
+        status, data = await client.delete_file("nonexistent.txt")
+        print(
+            f"Delete non-existent file. Status: {status} ({HTTPStatus(status).phrase}), data: {data}"
+        )
+    except (ConnectionRefusedError, ConnectionResetError) as exception:
+        print(exception)
+    except Exception as exception:
+        print(exception)
 
 if __name__ == "__main__":
     asyncio.run(main())

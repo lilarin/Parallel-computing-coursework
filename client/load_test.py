@@ -34,61 +34,61 @@ async def client_task(
         action = random.choice(
             [RequestType.UPLOAD_FILES, RequestType.SEARCH, RequestType.DELETE_FILE]
         )
-        if action == RequestType.UPLOAD_FILES:
-            filename = await generate_filename()
-            content = await choice_words(words)
-            start_time = asyncio.get_running_loop().time()
-            status, response = await client.upload_file(filename, content)
-            end_time = asyncio.get_running_loop().time()
-            duration = end_time - start_time
-            async with request_stats_lock:
-                if status is not None:
+
+        try:
+            if action == RequestType.UPLOAD_FILES:
+                filename = await generate_filename()
+                content = await choice_words(words)
+                start_time = asyncio.get_running_loop().time()
+                status, response = await client.upload_file(filename, content)
+                end_time = asyncio.get_running_loop().time()
+                duration = end_time - start_time
+                async with request_stats_lock:
                     request_stats["upload"]["total_time"] += duration
                     request_stats["upload"]["count"] += 1
                     if status == 201:
                         async with files_lock:
                             created_files.add(filename)
-                else:
-                    request_stats["failed"]["count"] += 1
 
-        elif action == RequestType.SEARCH:
-            content = await choice_words(words)
-            search_term = random.choice(content.split())
-            start_time = asyncio.get_running_loop().time()
-            status, response = await client.search_files(search_term)
-            end_time = asyncio.get_running_loop().time()
-            duration = end_time - start_time
-            async with request_stats_lock:
-                if status is not None:
-                    request_stats["search"]["total_time"] += duration
-                    request_stats["search"]["count"] += 1
-                else:
-                    request_stats["failed"]["count"] += 1
+            elif action == RequestType.SEARCH:
+                content = await choice_words(words)
+                search_term = random.choice(content.split())
+                start_time = asyncio.get_running_loop().time()
+                status, response = await client.search_files(search_term)
+                end_time = asyncio.get_running_loop().time()
+                duration = end_time - start_time
+                async with request_stats_lock:
+                    if status is not None:
+                        request_stats["search"]["total_time"] += duration
+                        request_stats["search"]["count"] += 1
+                    else:
+                        request_stats["failed"]["count"] += 1
 
-        elif action == RequestType.DELETE_FILE:
-            async with files_lock:
-                file_to_delete = (
-                    random.choice(list(created_files))
-                    if created_files
-                    else "non-existing.txt"
-                )
-            start_time = asyncio.get_running_loop().time()
-            status, response = await client.delete_file(file_to_delete)
-            end_time = asyncio.get_running_loop().time()
-            duration = end_time - start_time
-            async with request_stats_lock:
-                if status is not None:
+            elif action == RequestType.DELETE_FILE:
+                async with files_lock:
+                    file_to_delete = (
+                        random.choice(list(created_files))
+                        if created_files
+                        else "non-existing.txt"
+                    )
+                start_time = asyncio.get_running_loop().time()
+                status, response = await client.delete_file(file_to_delete)
+                end_time = asyncio.get_running_loop().time()
+                duration = end_time - start_time
+                async with request_stats_lock:
                     request_stats["delete"]["total_time"] += duration
                     request_stats["delete"]["count"] += 1
                     if status == 200 and file_to_delete != "non-existing.txt":
                         async with files_lock:
                             created_files.remove(file_to_delete)
-                else:
-                    request_stats["failed"]["count"] += 1
+        except (ConnectionRefusedError, ConnectionResetError):
+            request_stats["failed"]["count"] += 1
+        except Exception:
+            request_stats["failed"]["count"] += 1
 
     await asyncio.gather(*[single_request() for _ in range(num_requests)])
 
-async def clean(client, created_files):
+async def clean(created_files):
     clear_tasks = [client.delete_file(filename) for filename in created_files]
     await asyncio.gather(*clear_tasks)
 
@@ -119,7 +119,7 @@ async def run_test(num_clients: int, num_requests: int, wait_time_range):
     ]
     await asyncio.gather(*client_tasks)
 
-    await clean(client, created_files)
+    await clean(created_files)
 
     avg_times = {}
     for action, stats in request_stats.items():
@@ -187,47 +187,41 @@ async def main(user_counts, requests_per_user, wait_time_range):
 async def test_scenarios():
     test_cases = [
         {
-            "user_counts": [5],
-            "requests_per_user": 5,
+            "user_counts": [5, 10, 15, 20],
+            "requests_per_user": 25,
             "wait_time_range": (0, 1),
-            "name": "Temp"
+            "name": "Small number of users"
+        },
+        {
+            "user_counts": [15, 20, 25, 30],
+            "requests_per_user": 25,
+            "wait_time_range": (0, 1),
+            "name": "Average number of users"
+        },
+        {
+            "user_counts": [35, 40, 45, 50],
+            "requests_per_user": 25,
+            "wait_time_range": (0, 1),
+            "name": "Large number of users"
+        },
+        {
+            "user_counts": [35, 40, 45, 50],
+            "requests_per_user": 30,
+            "wait_time_range": (0, 1),
+            "name": "Large number of users"
+        },
+        {
+            "user_counts": [10, 15, 20, 25],
+            "requests_per_user": 50,
+            "wait_time_range": (0, 1),
+            "name": "Large number of users and requests"
+        },
+        {
+            "user_counts": [50, 60, 70, 80],
+            "requests_per_user": 20,
+            "wait_time_range": (0, 1),
+            "name": "Large number of users and requests"
         }
-        # {
-        #     "user_counts": [5, 10, 15, 20],
-        #     "requests_per_user": 25,
-        #     "wait_time_range": (0, 1),
-        #     "name": "Small number of users"
-        # },
-        # {
-        #     "user_counts": [15, 20, 25, 30],
-        #     "requests_per_user": 25,
-        #     "wait_time_range": (0, 1),
-        #     "name": "Average number of users"
-        # },
-        # {
-        #     "user_counts": [35, 40, 45, 50],
-        #     "requests_per_user": 25,
-        #     "wait_time_range": (0, 1),
-        #     "name": "Large number of users"
-        # },
-        # {
-        #     "user_counts": [35, 40, 45, 50],
-        #     "requests_per_user": 30,
-        #     "wait_time_range": (0, 1),
-        #     "name": "Large number of users"
-        # },
-        # {
-        #     "user_counts": [10, 15, 20, 25],
-        #     "requests_per_user": 50,
-        #     "wait_time_range": (0, 1),
-        #     "name": "Large number of users and requests"
-        # },
-        # {
-        #     "user_counts": [50, 60, 70, 80],
-        #     "requests_per_user": 20,
-        #     "wait_time_range": (0, 1),
-        #     "name": "Large number of users and requests"
-        # }
     ]
 
     for i, test_case in enumerate(test_cases):

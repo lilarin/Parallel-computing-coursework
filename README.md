@@ -69,7 +69,6 @@ This project implements a web server for managing and searching text files using
 
 ### **1. Upload File**
 - **Method:** `POST`
-- **Endpoint:** `/api`
 - **Description:** Uploads a text file to the server for indexing.
 - **Parameters:**
   - `filename`: The text filename to be uploaded.
@@ -77,14 +76,12 @@ This project implements a web server for managing and searching text files using
 
 ### **2. Search Files**
 - **Method:** `GET`
-- **Endpoint:** `/api`
 - **Description:** Searches for specific terms in the uploaded files.
 - **Parameters:**
   - `query`: The term to search files for.
 
 ### **3. Delete File**
 - **Method:** `DELETE`
-- **Endpoint:** `/api`
 - **Description:** Deletes a specified file from the server.
 - **Parameters:**
   - `filename`: The name of the file to delete.

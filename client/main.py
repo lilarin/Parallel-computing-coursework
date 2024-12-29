@@ -1,12 +1,10 @@
 import asyncio
 from http import HTTPStatus
 
-from client import Client
+from client import client
 
 
 async def main():
-    client = Client("localhost", 8080)
-
     # Test files upload
     filename = "test1.txt"
     content = "This is the content of test file 1."
@@ -19,11 +17,11 @@ async def main():
     print(f"Upload file. Status: {status} ({HTTPStatus(status).phrase}), data: {data}")
 
     # Test searching
-    status, data = await client.search_index("content")
+    status, data = await client.search_files("content")
     print(f"Search. Status: {status} ({HTTPStatus(status).phrase}), data: {data}")
 
     # Test searching non-existent query
-    status, data = await client.search_index("12333333qsadadasdad")
+    status, data = await client.search_files("12333333qsadadasdad")
     print(
         f"Search with non-existing query. Status: {status} ({HTTPStatus(status).phrase}), data: {data}"
     )
@@ -33,7 +31,7 @@ async def main():
     print(f"Delete file. Status: {status} ({HTTPStatus(status).phrase}), data: {data}")
 
     # Test searching after deleting single file
-    status, data = await client.search_index("content")
+    status, data = await client.search_files("content")
     print(
         f"Search non-existent file. Status: {status} ({HTTPStatus(status).phrase}), data: {data}"
     )
@@ -43,7 +41,7 @@ async def main():
     print(f"Delete file. Status: {status} ({HTTPStatus(status).phrase}), data: {data}")
 
     # Test searching after deleting the both files
-    status, data = await client.search_index("content")
+    status, data = await client.search_files("content")
     print(
         f"Search non-existent file. Status: {status} ({HTTPStatus(status).phrase}), data: {data}"
     )

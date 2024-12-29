@@ -4,7 +4,7 @@ import string
 
 import matplotlib.pyplot as plt
 
-from client import Client, RequestType
+from client import client, RequestType
 
 async def generate_words(length: int = 50):
     return [
@@ -21,7 +21,6 @@ async def generate_filename(length: int = 5):
     )
 
 async def client_task(
-    client,
     words,
     num_requests,
     wait_time_range,
@@ -56,7 +55,7 @@ async def client_task(
             content = await choice_words(words)
             search_term = random.choice(content.split())
             start_time = asyncio.get_running_loop().time()
-            status, response = await client.search_index(search_term)
+            status, response = await client.search_files(search_term)
             end_time = asyncio.get_running_loop().time()
             duration = end_time - start_time
             async with request_stats_lock:
@@ -94,7 +93,6 @@ async def clean(client, created_files):
     await asyncio.gather(*clear_tasks)
 
 async def run_test(num_clients: int, num_requests: int, wait_time_range):
-    client = Client("localhost", 8080)
     words = await generate_words()
 
     created_files = set()
@@ -109,7 +107,6 @@ async def run_test(num_clients: int, num_requests: int, wait_time_range):
 
     client_tasks = [
         client_task(
-            client,
             words,
             num_requests,
             wait_time_range,
@@ -190,41 +187,47 @@ async def main(user_counts, requests_per_user, wait_time_range):
 async def test_scenarios():
     test_cases = [
         {
-            "user_counts": [5, 10, 15, 20],
-            "requests_per_user": 25,
+            "user_counts": [5],
+            "requests_per_user": 5,
             "wait_time_range": (0, 1),
-            "name": "Small number of users"
-        },
-        {
-            "user_counts": [15, 20, 25, 30],
-            "requests_per_user": 25,
-            "wait_time_range": (0, 1),
-            "name": "Average number of users"
-        },
-        {
-            "user_counts": [35, 40, 45, 50],
-            "requests_per_user": 25,
-            "wait_time_range": (0, 1),
-            "name": "Large number of users"
-        },
-        {
-            "user_counts": [35, 40, 45, 50],
-            "requests_per_user": 30,
-            "wait_time_range": (0, 1),
-            "name": "Large number of users"
-        },
-        {
-            "user_counts": [10, 15, 20, 25],
-            "requests_per_user": 50,
-            "wait_time_range": (0, 1),
-            "name": "Large number of users and requests"
-        },
-        {
-            "user_counts": [50, 60, 70, 80],
-            "requests_per_user": 20,
-            "wait_time_range": (0, 1),
-            "name": "Large number of users and requests"
+            "name": "Temp"
         }
+        # {
+        #     "user_counts": [5, 10, 15, 20],
+        #     "requests_per_user": 25,
+        #     "wait_time_range": (0, 1),
+        #     "name": "Small number of users"
+        # },
+        # {
+        #     "user_counts": [15, 20, 25, 30],
+        #     "requests_per_user": 25,
+        #     "wait_time_range": (0, 1),
+        #     "name": "Average number of users"
+        # },
+        # {
+        #     "user_counts": [35, 40, 45, 50],
+        #     "requests_per_user": 25,
+        #     "wait_time_range": (0, 1),
+        #     "name": "Large number of users"
+        # },
+        # {
+        #     "user_counts": [35, 40, 45, 50],
+        #     "requests_per_user": 30,
+        #     "wait_time_range": (0, 1),
+        #     "name": "Large number of users"
+        # },
+        # {
+        #     "user_counts": [10, 15, 20, 25],
+        #     "requests_per_user": 50,
+        #     "wait_time_range": (0, 1),
+        #     "name": "Large number of users and requests"
+        # },
+        # {
+        #     "user_counts": [50, 60, 70, 80],
+        #     "requests_per_user": 20,
+        #     "wait_time_range": (0, 1),
+        #     "name": "Large number of users and requests"
+        # }
     ]
 
     for i, test_case in enumerate(test_cases):

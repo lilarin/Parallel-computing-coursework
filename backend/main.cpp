@@ -1,6 +1,6 @@
-#include "file_storage.h"
-#include "inverted_index.h"
-#include "web_server.h"
+#include "src/file_storage.h"
+#include "src/inverted_index.h"
+#include "src/web_server.h"
 #include <vector>
 
 int main() {

@@ -1,6 +1,6 @@
 # Web Server for Inverted Index
 
-This project implements a comprehensive web server for managing and searching text files using an inverted index. It combines efficient C++ structures for backend processing with a modern FastAPI-based web API for user interaction. Users can upload text files, search for specific terms, and delete files through a user-friendly interface.
+This project implements a web server for managing and searching text files using an inverted index. It combines efficient C++ structures for backend processing with a modern FastAPI-based web API. Users can upload text files, search for specific text in those files, and delete files.
 
 ---
 
@@ -39,32 +39,29 @@ This project implements a comprehensive web server for managing and searching te
 ### **C++ Backend**
 - **Multithreading:**
   - Implements a custom thread pool to handle multiple client requests concurrently.
-  - Uses synchronization primitives such as `std::mutex`, `std::shared_mutex`, and `std::condition_variable` to ensure thread-safe operations.
+  - Uses synchronization primitives such as `std::shared_mutex` and `std::condition_variable` to ensure thread-safe operations.
 - **Inverted Index Implementation:**
   - Optimized data structure to map terms to the documents containing them.
   - Supports fast addition of documents and term searching.
 - **File Storage Management:**
   - Handles saving, reading, and deleting uploaded files.
   - Includes locking mechanisms for concurrent access safety.
-- **HTTP Request Parsing:**
-  - Custom implementation of HTTP request parsing for enhanced performance.
 
 ### **FastAPI Web API**
 - **Endpoints:**
-  - `POST /api/upload`: Uploads a file to the server.
-  - `GET /api/search`: Searches for terms in the uploaded files.
-  - `DELETE /api/delete`: Deletes a specified file.
+  - `POST /api`: Uploads a file to the server.
+  - `GET /api`: Searches for the content in the uploaded files.
+  - `DELETE /api`: Deletes a file by name.
 - **Swagger UI:** Provides an interactive interface for API testing and documentation.
 
 ### **Python Client and Testing**
 - **Async Client:**
   - Built using `asyncio` for simulating multiple concurrent users efficiently.
-  - Supports both synchronous (`requests` library) and asynchronous interactions.
 - **Load Testing Scripts:**
   - Simulate concurrent user behavior and measure server performance.
 
 ### **C++ Client**
-- A lightweight C++ client capable of interfacing with the server for basic operations, designed for scenarios requiring high performance.
+- A lightweight C++ client capable of interfacing with the server for basic operations.
 
 ---
 
@@ -72,7 +69,7 @@ This project implements a comprehensive web server for managing and searching te
 
 ### **1. Upload File**
 - **Method:** `POST`
-- **Endpoint:** `/api/upload`
+- **Endpoint:** `/api`
 - **Description:** Uploads a text file to the server for indexing.
 - **Parameters:**
   - `filename`: The text filename to be uploaded.
@@ -80,14 +77,14 @@ This project implements a comprehensive web server for managing and searching te
 
 ### **2. Search Files**
 - **Method:** `GET`
-- **Endpoint:** `/api/search`
+- **Endpoint:** `/api`
 - **Description:** Searches for specific terms in the uploaded files.
 - **Parameters:**
   - `query`: The term to search files for.
 
 ### **3. Delete File**
 - **Method:** `DELETE`
-- **Endpoint:** `/api/delete`
+- **Endpoint:** `/api`
 - **Description:** Deletes a specified file from the server.
 - **Parameters:**
   - `filename`: The name of the file to delete.
@@ -111,5 +108,3 @@ This project implements a comprehensive web server for managing and searching te
 - `client.py`: Python client library for interacting with the server.
 - `load_test.py`: Python script for concurrent user simulation and load testing.
 - `cpp_client.cpp`: Lightweight C++ client for server interaction.
-
----

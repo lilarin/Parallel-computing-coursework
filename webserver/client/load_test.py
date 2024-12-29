@@ -4,7 +4,7 @@ import string
 
 import matplotlib.pyplot as plt
 
-from webserver.client import client, RequestType
+from webserver.client.client import client, RequestType
 
 async def generate_words(length: int = 50):
     return [
@@ -131,17 +131,14 @@ async def run_test(num_clients: int, num_requests: int, wait_time_range):
     return avg_times, failed_count
 
 async def plot_results(all_avg_times, all_failed_counts, requests_per_user, wait_time_range):
-    # Prepare data for plotting
     users = list(all_avg_times.keys())
     upload_times = [all_avg_times[u].get("upload", 0) for u in users]
     search_times = [all_avg_times[u].get("search", 0) for u in users]
     delete_times = [all_avg_times[u].get("delete", 0) for u in users]
     failed_requests = list(all_failed_counts.values())
 
-    # Create the figure and subplots
     fig, axs = plt.subplots(2, 1, figsize=(10, 12))
 
-    # Add general information text
     info_text = (
         f"Test parameters:\n"
         f"Wait time before each request: from {wait_time_range[0]} to {wait_time_range[1]} seconds\n"
@@ -149,7 +146,6 @@ async def plot_results(all_avg_times, all_failed_counts, requests_per_user, wait
     )
     fig.text(0.5, 0.96, info_text, ha='center', va='top', fontsize=10, bbox=dict(facecolor='lightgray', alpha=0.5))
 
-    # Plot average request times on the first subplot
     axs[0].plot(users, upload_times, marker="o", label="Upload")
     axs[0].plot(users, search_times, marker="o", label="Search")
     axs[0].plot(users, delete_times, marker="o", label="Delete")
@@ -160,7 +156,6 @@ async def plot_results(all_avg_times, all_failed_counts, requests_per_user, wait
     axs[0].legend()
     axs[0].grid(True)
 
-    # Plot failed requests on the second subplot
     axs[1].plot(users, failed_requests, marker="x", linestyle='--', color='red', label="Lost connections")
     axs[1].set_xlabel("Number of users")
     axs[1].set_ylabel("Number of disconnected connections")
@@ -181,7 +176,6 @@ async def main(user_counts, requests_per_user, wait_time_range):
         all_avg_times[num_users] = avg_times
         all_failed_counts[num_users] = failed_count
 
-    # Start plotting without waiting
     asyncio.create_task(plot_results(all_avg_times, all_failed_counts, requests_per_user, wait_time_range))
 
 async def test_scenarios():

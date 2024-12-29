@@ -7,7 +7,7 @@ from webserver.schemas import ServerResponse, UploadFile, ServerRawResponse
 router = APIRouter()
 
 
-@router.post("/upload")
+@router.post("/")
 @parse_response_middleware
 async def upload_file(request: UploadFile) -> ServerResponse:
     filename = request.filename
@@ -17,7 +17,7 @@ async def upload_file(request: UploadFile) -> ServerResponse:
     return ServerRawResponse(response=data, status_code=status)
 
 
-@router.get("/search")
+@router.get("/")
 @parse_response_middleware
 async def search_files(
         content: str = Query(..., description="The content to search")
@@ -26,7 +26,7 @@ async def search_files(
     return ServerRawResponse(response=data, status_code=status)
 
 
-@router.delete("/delete")
+@router.delete("/")
 @parse_response_middleware
 async def delete_file(
         file_name: str = Query(..., description="The filename to delete from index")

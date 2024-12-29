@@ -1,6 +1,5 @@
 .idea
 backend/.idea
-backend/CMakeLists.txt
 backend/cmake-build-debug
 client/.idea
 client/.venv

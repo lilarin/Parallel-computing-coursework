@@ -3,6 +3,7 @@
 #include <sstream>
 #include <algorithm>
 #include <shared_mutex>
+#include <mutex>
 
 void InvertedIndex::addDocument(const Document& document) {
     std::unique_lock<std::shared_mutex> lock(index_mutex);

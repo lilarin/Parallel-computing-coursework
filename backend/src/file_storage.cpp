@@ -2,6 +2,7 @@
 #include <iostream>
 #include <fstream>
 #include <shared_mutex>
+#include <mutex>
 
 FileStorage::FileStorage(const std::string& path) : storage_path(path) {
     std::experimental::filesystem::create_directory(storage_path);

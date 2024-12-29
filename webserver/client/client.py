@@ -48,4 +48,5 @@ class Client:
         return await self._send_request(RequestType.DELETE_FILE, filename)
 
 
-client = Client("localhost", 8080)
+client = Client("backend", 8080) # to work properly in docker
+# client = Client("0.0.0.0", 8080)

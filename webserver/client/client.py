@@ -1,4 +1,5 @@
 import asyncio
+import os
 import struct
 
 class RequestType:
@@ -48,5 +49,7 @@ class Client:
         return await self._send_request(RequestType.DELETE_FILE, filename)
 
 
-client = Client("backend", 8080) # to work properly in docker
-# client = Client("0.0.0.0", 8080)
+if os.environ.get("RUN_IN_DOCKER"):
+    client = Client("backend", 8080)
+else:
+    client = Client("127.0.0.1", 8080)

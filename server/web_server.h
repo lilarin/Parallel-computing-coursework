@@ -26,8 +26,8 @@ private:
     void handleClient(int client_socket);
 
 public:
-    WebServer(int port, InvertedIndex& index, FileStorage& storage, int num_threads = 4);
-    [[noreturn]] void start();
+    WebServer(int port, InvertedIndex& index, FileStorage& storage, int num_threads);
+    void start();
 };
 
 #endif // WEB_SERVER_H

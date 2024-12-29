@@ -123,7 +123,7 @@ void WebServer::handleClient(int client_socket) {
     close(client_socket);
 }
 
-[[noreturn]] void WebServer::start() {
+void WebServer::start() {
     int server_fd, new_socket;
     struct sockaddr_in address{};
     int opt = 1;

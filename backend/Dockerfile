@@ -23,4 +23,6 @@ RUN cmake -DCMAKE_CXX_COMPILER=g++-11 -DCMAKE_CXX_STANDARD=17 -S . -B build
 
 RUN cmake --build build
 
+EXPOSE 8080
+
 CMD ["./build/server"]

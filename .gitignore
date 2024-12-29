@@ -1,5 +1,5 @@
 .idea
 backend/.idea
 backend/cmake-build-debug
-client/.idea
-client/.venv
+webserver/client/.idea
+webserver/client/.venv

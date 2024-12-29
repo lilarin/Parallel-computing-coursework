@@ -17,7 +17,7 @@ This project implements a web server for managing and searching text files using
 
 1. **Clone the Repository:**
     ```
-    git clone https://github.com/lilarin/AI-Moderation-Blog-API.git
+    git clone https://github.com/lilarin/Parallel-computing-coursework.git
     ```
 2. **Create a Virtual Environment:**
     ```

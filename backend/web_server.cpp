@@ -64,9 +64,13 @@ Response WebServer::handleSearchRequest(const Request& request) {
         return {404, "No files found matching the query."};
     }
 
-    for (const auto& filename : results) {
-        result_string += filename + " ";
+    for (auto it = results.begin(); it != results.end(); ++it) {
+        result_string += *it;
+        if (std::next(it) != results.end()) {
+            result_string += " ";
+        }
     }
+
     std::cout << "INFO: Search request processed, found " << results.size() << " files." << std::endl;
     return {200, result_string};
 }

@@ -1,30 +1,115 @@
-# Parallel computing coursework – Web Server for Inverted Index
+# Web Server for Inverted Index
 
-This project implements a web server for searching text files using an inverted index. The server is designed for efficient handling of concurrent requests by leveraging parallel processing and optimized data structures.  It allows users to upload text files, search for specific terms within these files, and delete files.
+This project implements a comprehensive web server for managing and searching text files using an inverted index. It combines efficient C++ structures for backend processing with a modern FastAPI-based web API for user interaction. Users can upload text files, search for specific terms, and delete files through a user-friendly interface.
+
+---
+
+## Features
+
+- **Text File Upload:** Users can upload text files to the server.
+- **Search Functionality:** Efficiently search for terms within uploaded files using an inverted index.
+- **File Deletion:** Delete specific files stored on the server.
+- **Concurrency Support:** The server is designed to handle multiple requests simultaneously, leveraging multithreading and optimized data structures.
+
+---
+
+## Installation
+
+1. **Clone the Repository:**
+    ```
+    git clone https://github.com/lilarin/AI-Moderation-Blog-API.git
+    ```
+2. **Create a Virtual Environment:**
+    ```
+    python -m venv env
+    source env/bin/activate
+    ```
+
+3. **Launch Docker Application:**
+
+4. **Run the Docker-Compose in the Project Terminal:**
+    ```
+    docker-compose up --build
+    ```
+
+---
 
 ## Core Technologies
 
-* **C++:** The core server logic, including indexing, searching, and file storage, is implemented in C++ for performance.  Key libraries and features used include:
-    * **Standard Template Library (STL):**  `<string>`, `<vector>`, `<set>`, `<mutex>`, `<condition_variable>`, `<thread>`, `<shared_mutex>` are utilized for efficient data manipulation, synchronization, and parallel processing.
-    * **Multithreading:** The server employs a custom thread pool (`thread_pool.cpp/.h`) to handle concurrent client requests, maximizing resource utilization and improving response times.
-    * **Inverted Index (`inverted_index.cpp/.h`):**  A highly optimized inverted index data structure is used for efficient text searching. This structure maps terms to the documents containing those terms, enabling fast retrieval of search results.
-    * **File Storage (`file_storage.cpp/.h`):**  Handles file system operations for storing and retrieving uploaded files. Implements locking mechanisms for safe concurrent access.
-    * **Custom HTTP Request Parsing:**  The server directly parses HTTP requests for better control and performance compared to using a full-fledged HTTP library.
-* **Python (asyncio):** The client and load testing scripts are written in Python, utilizing the `asyncio` library for asynchronous communication with the server. This allows for simulating multiple concurrent users efficiently.  The `requests` library is used for simpler synchronous testing.
+### **C++ Backend**
+- **Multithreading:**
+  - Implements a custom thread pool to handle multiple client requests concurrently.
+  - Uses synchronization primitives such as `std::mutex`, `std::shared_mutex`, and `std::condition_variable` to ensure thread-safe operations.
+- **Inverted Index Implementation:**
+  - Optimized data structure to map terms to the documents containing them.
+  - Supports fast addition of documents and term searching.
+- **File Storage Management:**
+  - Handles saving, reading, and deleting uploaded files.
+  - Includes locking mechanisms for concurrent access safety.
+- **HTTP Request Parsing:**
+  - Custom implementation of HTTP request parsing for enhanced performance.
 
-## Prerequisites
+### **FastAPI Web API**
+- **Endpoints:**
+  - `POST /api/upload`: Uploads a file to the server.
+  - `GET /api/search`: Searches for terms in the uploaded files.
+  - `DELETE /api/delete`: Deletes a specified file.
+- **Swagger UI:** Provides an interactive interface for API testing and documentation.
 
-* **C++ Compiler:** A modern C++ compiler supporting C++17 or later.
-* **Python 3.12:** With the `asyncio`, `requests` and `matplotlib` libraries installed.
+### **Python Client and Testing**
+- **Async Client:**
+  - Built using `asyncio` for simulating multiple concurrent users efficiently.
+  - Supports both synchronous (`requests` library) and asynchronous interactions.
+- **Load Testing Scripts:**
+  - Simulate concurrent user behavior and measure server performance.
+
+### **C++ Client**
+- A lightweight C++ client capable of interfacing with the server for basic operations, designed for scenarios requiring high performance.
+
+---
+
+## API Endpoints
+
+### **1. Upload File**
+- **Method:** `POST`
+- **Endpoint:** `/api/upload`
+- **Description:** Uploads a text file to the server for indexing.
+- **Parameters:**
+  - `filename`: The text filename to be uploaded.
+  - `content`: The text content to be uploaded.
+
+### **2. Search Files**
+- **Method:** `GET`
+- **Endpoint:** `/api/search`
+- **Description:** Searches for specific terms in the uploaded files.
+- **Parameters:**
+  - `query`: The term to search files for.
+
+### **3. Delete File**
+- **Method:** `DELETE`
+- **Endpoint:** `/api/delete`
+- **Description:** Deletes a specified file from the server.
+- **Parameters:**
+  - `filename`: The name of the file to delete.
+
+---
 
 ## Project Structure
-* **main.cpp:** The main entry point of the C++ server application. Initializes the server and starts listening for connections.
-* **web_server.cpp/.h:** Handles incoming HTTP requests, dispatches them to the appropriate handlers, and sends responses back to the client.
-* **thread_pool.cpp/.h:** Implements the thread pool, managing worker threads and distributing tasks among them.
-* **inverted_index.cpp/.h:** Contains the implementation of the inverted index data structure and related operations (adding documents, searching).
-* **indexer.cpp/.h:** Responsible for building and updating the inverted index from the uploaded files.
-* **file_storage.cpp/.h:** Manages file storage on the server, including saving, reading, and deleting files.
-* **utils.cpp/.h:** Utility functions used across the project.
-* **main.py:** Example Python client demonstrating basic interactions with the server.
-* **client.py:** Python client library providing functions for communicating with the server asynchronously.
-* **load_test.py:** Python script for simulating concurrent users and performing load testing.
+
+### **Backend (C++):**
+- `main.cpp`: Entry point of the server application.
+- `web_server.cpp/.h`: Manages HTTP request handling and routing.
+- `thread_pool.cpp/.h`: Implements a thread pool for concurrent task execution.
+- `inverted_index.cpp/.h`: Defines the inverted index structure and its operations.
+- `file_storage.cpp/.h`: Handles file system operations (save, read, delete).
+- `utils.cpp/.h`: Utility functions shared across modules.
+
+### **Web API (Python):**
+- `main.py`: FastAPI application defining endpoints and API logic.
+
+### **Clients:**
+- `client.py`: Python client library for interacting with the server.
+- `load_test.py`: Python script for concurrent user simulation and load testing.
+- `cpp_client.cpp`: Lightweight C++ client for server interaction.
+
+---

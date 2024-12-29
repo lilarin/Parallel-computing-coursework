@@ -1,6 +1,6 @@
 .idea
-server/.idea
-server/CMakeLists.txt
-server/cmake-build-debug
+backend/.idea
+backend/CMakeLists.txt
+backend/cmake-build-debug
 client/.idea
 client/.venv

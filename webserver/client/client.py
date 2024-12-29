@@ -27,11 +27,11 @@ class Client:
             status_code, response_text = response_parts
             return int(status_code), response_text
         except ConnectionRefusedError:
-            raise ConnectionRefusedError(F"Connection refused by server at {self.host}:{self.port}")
+            raise ConnectionRefusedError(f"Connection refused by server at {self.host}:{self.port}")
         except ConnectionResetError:
-            raise ConnectionRefusedError(F"Server at {self.host}:{self.port} is not available")
-        except Exception as exception:
-            raise Exception(f"An unexpected error occurred during communication: ", exception)
+            raise ConnectionRefusedError(f"Connection reset by server at {self.host}:{self.port}")
+        except Exception:
+            raise Exception(f"Server is not available")
         finally:
             if writer is not None:
                 writer.close()

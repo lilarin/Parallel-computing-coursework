@@ -1,7 +1,7 @@
 import asyncio
 from http import HTTPStatus
 
-from client import client
+from webserver.client import client
 
 
 async def main():

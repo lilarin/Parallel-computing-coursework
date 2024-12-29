@@ -4,7 +4,7 @@ import string
 
 import matplotlib.pyplot as plt
 
-from client import client, RequestType
+from webserver.client import client, RequestType
 
 async def generate_words(length: int = 50):
     return [

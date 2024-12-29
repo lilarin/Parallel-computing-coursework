@@ -97,7 +97,7 @@ void WebServer::handleClient(int client_socket) {
         request.type = static_cast<RequestType>(request_type_int);
         request.data = request_data;
 
-        std::cout << "INFO: Received request of type " << static_cast<int>(request.type) << " with data: '" << request.data << "'" << std::endl;
+        std::cout << "INFO: Received request of type " << static_cast<int>(request.type) << std::endl;
 
         Response response;
         switch (request.type) {

@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Query
 
-from client.client import client
+from webserver.client.client import client
 from webserver.middleware import parse_response_middleware
 from webserver.schemas import ServerResponse, UploadFile, ServerRawResponse
 

@@ -54,8 +54,11 @@ class Client:
         data = f"{filename}\n{content}"
         return await self._send_request(RequestType.UPLOAD_FILES, data)
 
-    async def search_index(self, query):
+    async def search_files(self, query):
         return await self._send_request(RequestType.SEARCH, query)
 
     async def delete_file(self, filename):
         return await self._send_request(RequestType.DELETE_FILE, filename)
+
+
+client = Client("localhost", 8080)

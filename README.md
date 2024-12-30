@@ -46,6 +46,8 @@ This project implements a web server for managing and searching text files using
 - **File Storage Management:**
   - Handles saving, reading, and deleting uploaded files.
   - Includes locking mechanisms for concurrent access safety.
+- **Custom Communication Protocol**
+  - The client communicates with the server using **TCP (Transmission Control Protocol)** on a specified host and port
 
 ### **FastAPI Web API**
 - **Endpoints:**
@@ -62,6 +64,46 @@ This project implements a web server for managing and searching text files using
 
 ### **C++ Client**
 - A lightweight C++ client capable of interfacing with the server for basic operations.
+
+---
+
+## Request Format
+
+To connect to the server, a client needs to establish a TCP connection to the server's IP address and port number.
+The client sends requests to the server in the following format:
+
+1. **Request Type (1 byte):** The first byte of the message indicates the type of request. This is represented by the `RequestType` enum in the C++ code. The possible values are:
+    *   `0`: `UPLOAD_FILES`
+    *   `1`: `SEARCH`
+    *   `2`: `DELETE_FILE`
+
+2. **Data:**  Following the request type byte is the data associated with the request. The format of this data depends on the `RequestType`:
+
+    *   **`UPLOAD_FILES`:** The data consists of the filename followed by a newline character (`\n`), and then the content of the file.
+        ```
+        <filename>\n<file_content>
+        ```
+        Example:
+        ```
+        test.txt\nThis is the content of the file.
+        ```
+
+    *   **`SEARCH`:** The data is simply the search query string.
+        ```
+        <search_query>
+        ```
+        Example:
+        ```
+        content
+        ```
+
+    *   **`DELETE_FILE`:** The data is the name of the file to be deleted.
+        ```
+        <filename>
+        ```
+        Example:
+        ```
+        document.pdf
 
 ---
 

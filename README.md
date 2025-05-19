@@ -1,4 +1,4 @@
-# Web Server for Inverted Index
+# Inverted Index Web Server
 
 This project implements a web server for managing and searching text files using an inverted index. It combines efficient C++ structures for backend processing with a modern FastAPI-based web API. Users can upload text files, search for specific text in those files, and delete files.
 
